@@ -1,0 +1,10 @@
+{
+  "name": "atarijs-server-html",
+  "version": "1.0.0",
+  "license": "MIT",
+  "dependencies": {
+    "bootstrap": "^3.3.7",
+    "jquery": "1.11.3",
+    "jquery-ui": "^1.12.1"
+  }
+}

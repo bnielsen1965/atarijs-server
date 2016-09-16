@@ -1,0 +1,29 @@
+{
+  "name": "atarijs-server",
+  "version": "1.0.0",
+  "description": "Atari floppy drive image server.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Atari",
+    "SIO",
+    "disk",
+    "drive",
+    "image",
+    "floppy",
+    "server"
+  ],
+  "author": "Bryan Nielsen (@bnielsen1965)",
+  "license": "MIT",
+  "dependencies": {
+    "atarijs-sio": "https://github.com/bnielsen1965/atarijs-sio.git",
+    "body-parser": "^1.15.2",
+    "cookie-session": "^2.0.0-alpha.1",
+    "express": "^4.14.0",
+    "json-fs-store": "^1.0.0",
+    "serve-favicon": "^2.3.0",
+    "serve-index": "^1.8.0"
+  }
+}
