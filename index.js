@@ -93,15 +93,17 @@ catch (e) {
 var fs = require('fs');
 
 
+server.post('/api/getstatus', function(req, res) {
+  var status = sio.getStatus();
+  res.json({errors: [], status: status});
+});
+
+
 server.post('/api/loadimage', function(req, res) {
   // validate input
   console.log('Load drive ' + req.body.driveNumber + ' with ' + IMAGE_PATH + req.body.imageFilename);
-
-  sio.loadDrive(req.body.driveNumber - 1, IMAGE_PATH + req.body.imageFilename);
-  // read image listload
-
-  // respond with list in json data
-  res.json({errors: []});
+  var errors = sio.loadDrive(req.body.driveNumber - 1, IMAGE_PATH + req.body.imageFilename);
+  res.json({errors: errors || []});
 });
 
 

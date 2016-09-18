@@ -2,3 +2,7 @@
   height: 30em;
   overflow: auto;
 }
+
+.infodiv {
+  background-color: #eee;
+}
