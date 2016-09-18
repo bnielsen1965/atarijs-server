@@ -89,6 +89,10 @@ catch (e) {
 }
 
 
+
+var fs = require('fs');
+
+
 server.post('/api/loadimage', function(req, res) {
   // validate input
   console.log('Load drive ' + req.body.driveNumber + ' with ' + IMAGE_PATH + req.body.imageFilename);
@@ -98,6 +102,19 @@ server.post('/api/loadimage', function(req, res) {
 
   // respond with list in json data
   res.json({errors: []});
+});
+
+
+server.post('/api/getimagelist', function(req, res) {
+  var imageFiles = [];
+  fs.readdir(IMAGE_PATH, function(error, files) {
+    if (files && files.length) {
+      files.forEach(function(file) {
+        imageFiles.push(file);
+      });
+    }
+    res.json({errors: [error], imageFiles: imageFiles});
+  });
 });
 
 

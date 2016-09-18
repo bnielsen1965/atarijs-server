@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>AtariJS Server</title>
+	<!--[if IE]>
+		<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+
+	<script src="/node_modules/jquery/dist/jquery.min.js"></script>
+	<script src="/node_modules/jquery-ui-dist/jquery-ui.min.js"></script>
+  <script src="/node_modules/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js"></script>
+
+	<link rel="stylesheet" href="/node_modules/jquery-ui-dist/jquery-ui.theme.min.css">
+  <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" href="/css/index.css">
+	<!--<link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />-->
+
+  <script src="/js/index.js"></script>
+
+</head>
+<body>
+
+  <div class="container">
+    <div class="row" id="driveimagerow">
+      <div class="col-sm-6">
+        <div class="list-group">
+          <div class="list-group-item driveitem" data-drivenumber="1" id="drive1">
+            D1: <span class="imagefile"></span>
+          </div>
+          <div class="list-group-item driveitem" data-drivenumber="2" id="drive2">
+            D2: <span class="imagefile"></span>
+          </div>
+          <div class="list-group-item driveitem" data-drivenumber="3" id="drive3">
+            D3: <span class="imagefile"></span>
+          </div>
+          <div class="list-group-item driveitem" data-drivenumber="4" id="drive4">
+            D4: <span class="imagefile"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-sm-6" id="imagefiles">
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
