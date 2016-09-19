@@ -34,6 +34,8 @@ var express = require('express');
 
 var server = express();
 
+var MAXIMUM_PARKED = 4;
+var parkedDriveImages = [];
 
 // https redirect
 /* Implement later as an option
@@ -95,6 +97,12 @@ var fs = require('fs');
 
 server.post('/api/getstatus', function(req, res) {
   var status = sio.getStatus();
+  status.parked = [];
+  for (var i = 0; i < MAXIMUM_PARKED; i++) {
+    if (parkedDriveImages[i]) {
+      status.parked[i] = parkedDriveImages[i].filename.length ? parkedDriveImages[i].filename : 'parked-image.atr';
+    }
+  }
   res.json({errors: [], status: status});
 });
 
@@ -104,6 +112,38 @@ server.post('/api/loadimage', function(req, res) {
   console.log('Load drive ' + req.body.driveNumber + ' with ' + IMAGE_PATH + req.body.imageFilename);
   var errors = sio.loadDrive(req.body.driveNumber - 1, IMAGE_PATH + req.body.imageFilename);
   res.json({errors: errors || []});
+});
+
+
+server.post('/api/parkdriveimage', function(req, res) {
+  if (req.body.parkedNumber - 1 > MAXIMUM_PARKED || req.body.parkedNumber < 0) {
+    res.json({errors: ['Invalid parked drive number.']});
+  }
+  else {
+    console.log('Park drive ' + req.body.driveNumber + ' in slot ' + req.body.parkedNumber);
+    var image = sio.exportImage(req.body.driveNumber - 1);
+    parkedDriveImages[req.body.parkedNumber - 1] = {image: image, filename: req.body.filename};
+    sio.unloadImage(req.body.driveNumber - 1);
+    res.json({errors: []});
+  }
+});
+
+
+server.post('/api/parkedimagetodrive', function(req, res) {
+  if (req.body.parkedNumber - 1 > MAXIMUM_PARKED || req.body.parkedNumber < 0) {
+    res.json({errors: ['Invalid parked drive number.']});
+  }
+  else {
+    sio.importImage(req.body.driveNumber - 1, parkedDriveImages[req.body.parkedNumber - 1].image, IMAGE_PATH + parkedDriveImages[req.body.parkedNumber - 1].filename);
+    parkedDriveImages[req.body.parkedNumber - 1] = null;
+    res.json({errors: []});
+  }
+});
+
+
+server.post('/api/savedriveimage', function(req, res) {
+  sio.saveImage(req.body.driveNumber - 1);
+  res.json({errors: []});
 });
 
 
