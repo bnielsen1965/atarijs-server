@@ -1,3 +1,5 @@
+var helperOpacity = 0.5;
+
 $(document).ready(function() {
 
   $(".driveitem")
@@ -17,7 +19,8 @@ $(document).ready(function() {
     .draggable({
       scope: 'driveimage',
       helper: 'clone',
-      appendTo: $('#drivescontainer')
+      appendTo: $('#drivescontainer'),
+      opacity: helperOpacity
     });
 
   $(".saveimage").click(function() {
@@ -40,7 +43,8 @@ $(document).ready(function() {
     .draggable({
       scope: 'driveimage',
       helper: 'clone',
-      appendTo: $('#drivescontainer')
+      appendTo: $('#drivescontainer'),
+      opacity: helperOpacity
     });
 
   getImageFilesList();
@@ -101,7 +105,7 @@ function getStatus() {
 
 
 function updateImageList(imageFiles) {
-  var listHTML = '<div class="list-group">';
+  var listHTML = '<div class="list-group"><div class="list-group-item list-group-item-info">Floppy Image Files</div>';
   imageFiles.forEach(function(file) {
     listHTML += '<div class="list-group-item imagefile">' + file + '</div>';
   });
@@ -112,7 +116,8 @@ function updateImageList(imageFiles) {
   $('.imagefile').draggable({
     scope: 'driveimage',
     helper: 'clone',
-    appendTo: $('#driveimagerow')
+    appendTo: $('#driveimagerow'),
+    opacity: helperOpacity
   });
 }
 
