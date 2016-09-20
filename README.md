@@ -5,6 +5,10 @@ atarijs-sio and atarijs-disk-image modules.
 
 Provides a web based user interface with drag and drop image loading.
 
+> **WARNING** This software is provided as is and does not include an warranty or
+> guarantee. **Use at your own risk!** Keep backups of all floppy images that you
+> may use with this software.
+
 
 ## hardware
 
@@ -61,5 +65,5 @@ and parked image slots.
 
 
 **NOTE: Floppy images in the drives are in the server memory and writes to the
-floppies does not change the file on the server's drive.** Use the *Save* icon on 
+floppies does not change the file on the server's drive.** Use the *Save* icon on
 a drive to save the current floppy image back to the server file.
