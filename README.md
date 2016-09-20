@@ -18,6 +18,12 @@ it has only been tested on Raspberry Pi 3 hardware.
 An Atari 8 bit computer will be required and an SIO cable or jumper wires to connect
 the SIO connector on the computer to a breakout board.
 
+**NOTE:** The Atari SIO connector utilizes +5 volts for signals while the Raspberry
+Pi 3 uses +3.3 volts. A few resistors will be required to create a voltage divider
+circuit to reduce the Atari voltage on the Digital Output. The Atari Digital Input
+will recognize the +3.3 volts on the Raspberry Pi 3 but a current limiting resistor
+is recommended.
+
 
 ## software
 
