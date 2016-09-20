@@ -49,10 +49,17 @@ web based user interface.
 
 ## using the server
 
-Copy ATR image files into the atarijs-server/public/images/ directory. Use a web
-browser and enter the address and port number of the server in the web browser
+Copy ATR image files into the atarijs-server/public/images/ directory.
+
+
+Use a web browser and enter the address and port number of the server in the web browser
 location bar.
 
 
-Drag and drop files and images to move them between the file list, emulated drives
+Drag and drop files and floppy image files in the web page to move them between the file list, emulated drives
 and parked image slots.
+
+
+**NOTE: Floppy images in the drives are in the server memory and writes to the
+floppies does not change the file on the server's drive.** Use the *Save* icon on 
+a drive to save the current floppy image back to the server file.
