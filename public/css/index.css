@@ -11,3 +11,7 @@
 .driveitem, .parkeditem {
   overflow: auto;
 }
+
+#driveimagerow .glyphicon {
+  margin: 0 5px;
+}

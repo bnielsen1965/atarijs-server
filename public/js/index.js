@@ -13,18 +13,22 @@ $(document).ready(function() {
           //$(this).find('.imagefile').html(ui.helper.html());
           loadImage($(this).data('drivenumber'), ui.helper.html());
         }
-        setTimeout(getStatus, 1000);
+//        setTimeout(getStatus, 1000);
       }
     })
     .draggable({
       scope: 'driveimage',
       helper: 'clone',
-      appendTo: $('#drivescontainer'),
+      appendTo: $('body'),//$('#drivescontainer'),
       opacity: helperOpacity
     });
 
   $(".saveimage").click(function() {
     saveImage($(this).parents('.driveitem:first').data('drivenumber'));
+  });
+
+  $(".ejectimage").click(function() {
+    ejectImage($(this).parents('.driveitem:first').data('drivenumber'));
   });
 
   $(".parkeditem")
@@ -37,7 +41,7 @@ $(document).ready(function() {
         else {
           // parking an image file
         }
-        setTimeout(getStatus, 1000);
+//        setTimeout(getStatus, 5000);
       }
     })
     .draggable({
@@ -152,7 +156,7 @@ function loadImage(driveNumber, imageFilename) {
     contentType:"application/json; charset=utf-8",
     processData: false,
     success: function(data) {
-
+      getStatus();
     },
     timeout: 10000,
     error: function(jqXHR, textStatus, errorThrown) {
@@ -180,7 +184,7 @@ function parkDriveImage(filename, driveNumber, parkedNumber) {
     contentType:"application/json; charset=utf-8",
     processData: false,
     success: function(data) {
-
+      getStatus();
     },
     timeout: 10000,
     error: function(jqXHR, textStatus, errorThrown) {
@@ -207,7 +211,7 @@ function parkedToDrive(parkedNumber, driveNumber) {
     contentType:"application/json; charset=utf-8",
     processData: false,
     success: function(data) {
-
+      getStatus();
     },
     timeout: 10000,
     error: function(jqXHR, textStatus, errorThrown) {
@@ -234,6 +238,32 @@ function saveImage(driveNumber) {
     processData: false,
     success: function(data) {
 
+    },
+    timeout: 10000,
+    error: function(jqXHR, textStatus, errorThrown) {
+      console.log(errorThrown);
+    },
+    complete: function(jqXHR, textStatus) {
+
+    }
+  });
+}
+
+
+function ejectImage(driveNumber) {
+  var data = {
+    driveNumber: driveNumber
+  };
+
+  $.ajax({
+    type: "POST",
+    url: '/api/ejectdriveimage',
+    data: JSON.stringify(data),
+    dataType: 'json',
+    contentType:"application/json; charset=utf-8",
+    processData: false,
+    success: function(data) {
+      getStatus();
     },
     timeout: 10000,
     error: function(jqXHR, textStatus, errorThrown) {

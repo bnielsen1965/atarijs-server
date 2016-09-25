@@ -147,6 +147,12 @@ server.post('/api/savedriveimage', function(req, res) {
 });
 
 
+server.post('/api/ejectdriveimage', function(req, res){
+  sio.unloadImage(req.body.driveNumber - 1);
+  res.json({errors: []});
+});
+
+
 server.post('/api/getimagelist', function(req, res) {
   var imageFiles = [];
   fs.readdir(IMAGE_PATH, function(error, files) {
