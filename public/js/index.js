@@ -13,22 +13,32 @@ $(document).ready(function() {
           //$(this).find('.imagefile').html(ui.helper.html());
           loadImage($(this).data('drivenumber'), ui.helper.html());
         }
-//        setTimeout(getStatus, 1000);
       }
     })
     .draggable({
       scope: 'driveimage',
-      helper: 'clone',
-      appendTo: $('body'),//$('#drivescontainer'),
+      helper: function() {//'clone',
+        return $('<div></div>').addClass('imagefile').append($(this).find('input.imagefile').val()).data('drivenumber', $(this).data('drivenumber'));
+//        parkDriveImage(ui.helper.find('input.imagefile').val(), ui.helper.data('drivenumber'), $(this).data('parkednumber'));
+      },
+      appendTo: $('body'),
       opacity: helperOpacity
     });
 
   $(".saveimage").click(function() {
-    saveImage($(this).parents('.driveitem:first').data('drivenumber'));
+    saveImage(
+      $(this).parents('.driveitem:first').data('drivenumber'),
+      $(this).parents('.driveitem:first').find('input.imagefile').val()
+    );
   });
 
   $(".ejectimage").click(function() {
     ejectImage($(this).parents('.driveitem:first').data('drivenumber'));
+  });
+
+  $(".refreshserver").click(function() {
+    getImageFilesList();
+    getStatus();
   });
 
   $(".parkeditem")
@@ -36,12 +46,11 @@ $(document).ready(function() {
       scope: 'driveimage',
       drop: function( event, ui ) {
         if (ui.helper.data('drivenumber')) {
-          parkDriveImage(ui.helper.find('.imagefile').html(), ui.helper.data('drivenumber'), $(this).data('parkednumber'));
+          parkDriveImage(ui.helper.html(), ui.helper.data('drivenumber'), $(this).data('parkednumber'));
         }
         else {
           // parking an image file
         }
-//        setTimeout(getStatus, 5000);
       }
     })
     .draggable({
@@ -129,7 +138,7 @@ function updateImageList(imageFiles) {
 function updateStatus(status) {
   status.drives.forEach(function(driveStatus, index) {
     var $drive = $('#drive' + (index + 1));
-    $drive.find('.imagefile').html(driveStatus.filename || '');
+    $drive.find('input.imagefile').val(driveStatus.filename || '');
     $drive.find('.sectorsize').html(driveStatus.sectorSize || '');
     $drive.find('.sectorcount').html(driveStatus.sectorCount || '');
     $drive.find('.readonly').html((driveStatus.readOnly ? 'RO' : 'RW'));
@@ -224,9 +233,10 @@ function parkedToDrive(parkedNumber, driveNumber) {
 }
 
 
-function saveImage(driveNumber) {
+function saveImage(driveNumber, filename) {
   var data = {
-    driveNumber: driveNumber
+    driveNumber: driveNumber,
+    filename: filename
   };
 
   $.ajax({

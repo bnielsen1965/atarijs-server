@@ -102,6 +102,9 @@ server.post('/api/getstatus', function(req, res) {
     if (parkedDriveImages[i]) {
       status.parked[i] = parkedDriveImages[i].filename.length ? parkedDriveImages[i].filename : 'parked-image.atr';
     }
+    else {
+      status.parked[i] = null;
+    }
   }
   res.json({errors: [], status: status});
 });
@@ -142,7 +145,8 @@ server.post('/api/parkedimagetodrive', function(req, res) {
 
 
 server.post('/api/savedriveimage', function(req, res) {
-  sio.saveImage(req.body.driveNumber - 1);
+  var imageFilePath = req.body.filename ? IMAGE_PATH + req.body.filename : null;
+  sio.saveImage(req.body.driveNumber - 1, imageFilePath);
   res.json({errors: []});
 });
 
