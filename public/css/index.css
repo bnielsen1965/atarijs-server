@@ -1,17 +1,126 @@
-#imagefiles {
-  height: 30em;
-  overflow: auto;
+
+@font-face {
+  font-family: MaterialIcon;
+  src: url("../fonts/MaterialIcons-Regular.ttf") format("truetype");
 }
 
-.infodiv {
+@font-face {
+  font-family: MaterialIconsRound;
+  src: url("../fonts/MaterialIconsRound-Regular.otf") format("opentype");
+}
+
+.container {
+  display: block;
+  overflow: hidden;
+  padding: 15px;
   background-color: #eee;
 }
 
-
-.driveitem, .parkeditem {
-  overflow: auto;
+.container-row {
+  padding: 10px;
 }
 
-#driveimagerow .glyphicon {
-  margin: 0 5px;
+.container-cell-half {
+  width: 50%;
+  padding: 0;
+  margin: 0;
+  float: left;
+  position: relative;;
+}
+
+.box {
+  border: 1px solid #888;
+  border-radius: 10px;
+  margin: 10px;
+}
+
+.box-header {
+  background-color: #d9edf7;
+  color: #31708f;
+  padding: 5px;
+  border-bottom: 1px solid #888;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  font-size: 1.2em;
+  font-weight: bold;
+  overflow: hidden;
+}
+
+.box-body {
+  background-color: #fff;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+.box-row {
+  padding: 5px;
+  border-bottom: 1px solid #888;
+}
+
+.box-row:last-child {
+  border-bottom: none;
+}
+
+label.drive_info input {
+  margin-left: 25px;
+  width: 80%;
+  padding: 5px;
+}
+
+div.drive_info {
+  background-color: #eee;
+  overflow: hidden;
+  margin: 5px 0;
+  padding: 2px 5px;
+}
+
+span.drive_info {
+  float: left;
+  width: 33%;
+}
+
+span.drive_controls {
+  float: right;
+  margin-right: 25px;
+  font-size: 1.2em;
+  cursor: pointer;
+}
+
+.material_icons {
+  font-family: MaterialIcon;
+}
+
+
+.title-icon {
+  float: right;
+  margin-right: 20px;
+  font-size: 1.2em;
+  cursor: pointer;
+}
+
+#box-images {
+  background-color: #fff;
+}
+
+#drive-images {
+  max-height: 40em;
+  overflow: auto;
+  margin-bottom: 5px;
+}
+
+.image-file {
+  padding: 5px;
+  border-bottom: 1px solid #888;
+}
+
+.image-file:last-child {
+  border-bottom: none;
+}
+
+.log-message {
+  color: blue;
+}
+
+.log-error {
+  color: red;
 }

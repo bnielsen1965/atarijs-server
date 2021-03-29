@@ -1,286 +1,227 @@
-var helperOpacity = 0.5;
 
-$(document).ready(function() {
+const MAX_DRIVES = 4;
+const STATUS_REFRESH_MS = 5000;
 
-  $(".driveitem")
-    .droppable({
-      scope: 'driveimage',
-      drop: function( event, ui ) {
-        if (ui.helper.data('parkednumber')) {
-          parkedToDrive(ui.helper.data('parkednumber'), $(this).data('drivenumber'));
-        }
-        else {
-          //$(this).find('.imagefile').html(ui.helper.html());
-          loadImage($(this).data('drivenumber'), ui.helper.html());
-        }
-      }
-    })
-    .draggable({
-      scope: 'driveimage',
-      helper: function() {//'clone',
-        return $('<div></div>').addClass('imagefile').append($(this).find('input.imagefile').val()).data('drivenumber', $(this).data('drivenumber'));
-//        parkDriveImage(ui.helper.find('input.imagefile').val(), ui.helper.data('drivenumber'), $(this).data('parkednumber'));
-      },
-      appendTo: $('body'),
-      opacity: helperOpacity
-    });
+window.onload = ready;
 
-  $(".saveimage").click(function() {
-    saveImage(
-      $(this).parents('.driveitem:first').data('drivenumber'),
-      $(this).parents('.driveitem:first').find('input.imagefile').val()
-    );
-  });
+let statusTimer;
+let driveCount = 0;
+let busy = false;
 
-  $(".ejectimage").click(function() {
-    ejectImage($(this).parents('.driveitem:first').data('drivenumber'));
-  });
-
-  $(".refreshserver").click(function() {
-    getImageFilesList();
-    getStatus();
-  });
-
-  $(".parkeditem")
-    .droppable({
-      scope: 'driveimage',
-      drop: function( event, ui ) {
-        if (ui.helper.data('drivenumber')) {
-          parkDriveImage(ui.helper.html(), ui.helper.data('drivenumber'), $(this).data('parkednumber'));
-        }
-        else {
-          // parking an image file
-        }
-      }
-    })
-    .draggable({
-      scope: 'driveimage',
-      helper: 'clone',
-      appendTo: $('#drivescontainer'),
-      opacity: helperOpacity
-    });
-
-  getImageFilesList();
-  getStatus();
-});
-
-
-function getImageFilesList() {
-  var data = {};
-
-  $.ajax({
-    type: "POST",
-    url: '/api/getimagelist',
-    data: JSON.stringify(data),
-    dataType: 'json',
-    contentType:"application/json; charset=utf-8",
-    processData: false,
-    success: function(data) {
-      if (data.imageFiles) {
-        updateImageList(data.imageFiles);
-      }
-    },
-    timeout: 10000,
-    error: function(jqXHR, textStatus, errorThrown) {
-      console.log(errorThrown);
-    },
-    complete: function(jqXHR, textStatus) {
-
-    }
-  });
+// document is loaded and ready
+async function ready () {
+  await getImageList();
+  appendDrive();
+  await getStatus();
+  document.getElementById('append-drive').addEventListener('click', appendDrive);
+  document.getElementById('refresh-images').addEventListener('click', getImageList);
 }
 
 
-function getStatus() {
-  var data = {};
 
-  $.ajax({
-    type: "POST",
-    url: '/api/getstatus',
-    data: JSON.stringify(data),
-    dataType: 'json',
-    contentType:"application/json; charset=utf-8",
-    processData: false,
-    success: function(data) {
-      if (data.status) {
-        updateStatus(data.status);
-      }
-    },
-    timeout: 10000,
-    error: function(jqXHR, textStatus, errorThrown) {
-      console.log(errorThrown);
-    },
-    complete: function(jqXHR, textStatus) {
 
-    }
+async function getStatus () {
+  clearTimeout(statusTimer);
+  if (busy) {
+    statusTimer = setTimeout(getStatus, STATUS_REFRESH_MS);
+    return;
+  }
+  busy = true;
+  let data;
+  try {
+    data = await API.getJSON('/api/getstatus');
+  }
+  catch (error) {
+    busy = false;
+    appendError(error.message);
+    statusTimer = setTimeout(getStatus, STATUS_REFRESH_MS);
+    return;
+  }
+  showStatus(data);
+  busy = false;
+  statusTimer = setTimeout(getStatus, STATUS_REFRESH_MS);
+}
+
+// show status from status response
+function showStatus (res) {
+  let activeDrives = res.status.drives.reduce((f, d, i) => (d.filename && d.filename.length ? i + 1 : f), 0);
+  // ensure there are enough controls to cover active drives
+  let rows = document.querySelector('#drive-controls').querySelectorAll('.box-row');
+  let n = activeDrives - rows.length;
+  while (n-- > 0) appendDrive();
+  rows = document.querySelector('#drive-controls').querySelectorAll('.box-row');
+  // show status of each drive
+  res.status.drives.forEach((dstatus, i) => {
+    if (i < rows.length) showDriveStatus(rows[i], dstatus);
   });
 }
 
-
-function updateImageList(imageFiles) {
-  var listHTML = '<div class="list-group"><div class="list-group-item list-group-item-info">Floppy Image Files</div>';
-  imageFiles.forEach(function(file) {
-    listHTML += '<div class="list-group-item imagefile">' + file + '</div>';
-  });
-  listHTML+= '</div>';
-
-  $('#imagefiles').html(listHTML);
-
-  $('.imagefile').draggable({
-    scope: 'driveimage',
-    helper: 'clone',
-    appendTo: $('#driveimagerow'),
-    opacity: helperOpacity
-  });
+// load the drive status in the specified drive number row
+function showDriveStatus (driveRow, status) {
+  driveRow.querySelector('.sector-size').innerHTML = `Sector Size: ${status.sectorSize || ''}`;
+  driveRow.querySelector('.sector-count').innerHTML = `Sector Count: ${status.sectorCount || ''}`;
+  driveRow.querySelector('.status').innerHTML = `Status: ${status.readOnly ? 'RO' : (status.readOnly === false ? 'RW' : '')}`;
+  driveRow.querySelector('.filename').value = status.filename || '';
 }
 
 
-function updateStatus(status) {
-  status.drives.forEach(function(driveStatus, index) {
-    var $drive = $('#drive' + (index + 1));
-    $drive.find('input.imagefile').val(driveStatus.filename || '');
-    $drive.find('.sectorsize').html(driveStatus.sectorSize || '');
-    $drive.find('.sectorcount').html(driveStatus.sectorCount || '');
-    $drive.find('.readonly').html((driveStatus.readOnly ? 'RO' : 'RW'));
-  });
 
-  status.parked.forEach(function(filename, index) {
-    var $parked = $('#parked' + (index + 1));
-    $parked.find('.imagefile').html(filename);
+async function getImageList () {
+  if (busy) return;
+  busy = true;
+  removeDragListeners();
+  document.querySelector('#drive-images').innerHTML = '';
+  let data;
+  try {
+    data = await API.getJSON('/api/getimagelist');
+  }
+  catch (error) {
+    busy = false;
+    console.error('There has been a problem with your fetch operation:', error);
+    return;
+  }
+  showImageList(data);
+  busy = false;
+}
+
+function showImageList (list) {
+  let listElem = document.querySelector('#drive-images');
+  list.imageFiles.forEach(file => {
+    listElem.insertAdjacentHTML('beforeend', `<div class="image-file drag" draggable="true">${file}</div>`);
   });
+  addDragListeners();
 }
 
 
-function loadImage(driveNumber, imageFilename) {
-  var data = {
-    driveNumber: driveNumber,
-    imageFilename: imageFilename
-  };
 
-  $.ajax({
-    type: "POST",
-    url: '/api/loadimage',
-    data: JSON.stringify(data),
-    dataType: 'json',
-    contentType:"application/json; charset=utf-8",
-    processData: false,
-    success: function(data) {
-      getStatus();
-    },
-    timeout: 10000,
-    error: function(jqXHR, textStatus, errorThrown) {
-      console.log(errorThrown);
-    },
-    complete: function(jqXHR, textStatus) {
 
-    }
-  });
+// append a new drive container
+function appendDrive () {
+  driveCount += 1;
+  document.getElementById('drive-controls').insertAdjacentHTML('beforeend', htmlDrive(driveCount));
+  removeDropListeners();
+  addDropListeners();
+}
+
+function htmlDrive (i) {
+  return `
+  <div class="box-row" id="drive_${i}">
+  <label class="drive_info">D${i} <input class="drop filename" type="text" name="drive_image_${i}"></label>
+  <div class="drive_info">
+    <span class="drive_info sector-size">Sector Size: </span><span class="drive_info sector-count">Sector Count: </span><br>
+    <span class="drive_info status">Status: </span>
+    <span class="drive_controls">
+      <span class="material_icons" title="Save Disk" onclick="saveDrive(${i})">save</span>
+      <span class="material_icons" title="Eject Disk" onclick="ejectDrive(${i})">eject</span>
+    </span>
+  </div>
+  </div>
+  `;
+}
+
+async function saveDrive (driveNumber) {
+  let response = await API.postJSON('/api/savedriveimage', { driveNumber });
+  responseToLog(response);
+  showStatus(response);
+}
+
+async function ejectDrive (driveNumber) {
+  let response = await API.postJSON('/api/ejectdriveimage', { driveNumber });
+  responseToLog(response);
+  showStatus(response);
 }
 
 
-function parkDriveImage(filename, driveNumber, parkedNumber) {
-  var data = {
-    filename: filename,
-    driveNumber: driveNumber,
-    parkedNumber: parkedNumber
-  };
+function addDragListeners () {
+  const drags = document.querySelectorAll('.drag');
+  drags.forEach(elem => elem.addEventListener('dragstart', drag));
+}
 
-  $.ajax({
-    type: "POST",
-    url: '/api/parkdriveimage',
-    data: JSON.stringify(data),
-    dataType: 'json',
-    contentType:"application/json; charset=utf-8",
-    processData: false,
-    success: function(data) {
-      getStatus();
-    },
-    timeout: 10000,
-    error: function(jqXHR, textStatus, errorThrown) {
-      console.log(errorThrown);
-    },
-    complete: function(jqXHR, textStatus) {
+function removeDragListeners () {
+  const drags = document.querySelectorAll('.drag');
+  drags.forEach(elem => elem.removeEventListener('dragstart', drag));
+}
 
-    }
+// add listeners to drop targets
+function addDropListeners () {
+  const drops = document.querySelectorAll('.drop');
+  drops.forEach(drop => {
+    drop.addEventListener('drop', dropHere, false);
+    drop.addEventListener('dragenter', dragEnter, false);
+    drop.addEventListener('dragover', dragOver, false);
+    drop.addEventListener('dragleave', dragLeave, false);
   });
 }
 
-
-function parkedToDrive(parkedNumber, driveNumber) {
-  var data = {
-    driveNumber: driveNumber,
-    parkedNumber: parkedNumber
-  };
-
-  $.ajax({
-    type: "POST",
-    url: '/api/parkedimagetodrive',
-    data: JSON.stringify(data),
-    dataType: 'json',
-    contentType:"application/json; charset=utf-8",
-    processData: false,
-    success: function(data) {
-      getStatus();
-    },
-    timeout: 10000,
-    error: function(jqXHR, textStatus, errorThrown) {
-      console.log(errorThrown);
-    },
-    complete: function(jqXHR, textStatus) {
-
-    }
+// remove event listeners from drop targets
+function removeDropListeners () {
+  const drops = document.querySelectorAll('.drop');
+  drops.forEach(drop => {
+    drop.removeEventListener('drop', dropHere);
+    drop.removeEventListener('dragenter', dragEnter);
+    drop.removeEventListener('dragover', dragOver);
+    drop.removeEventListener('dragleave', dragLeave);
   });
 }
 
+function dragEnter (e) {
+  e.preventDefault();
+}
 
-function saveImage(driveNumber, filename) {
-  var data = {
-    driveNumber: driveNumber,
-    filename: filename
-  };
+function dragOver (e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'copy';
+  return false;
+}
 
-  $.ajax({
-    type: "POST",
-    url: '/api/savedriveimage',
-    data: JSON.stringify(data),
-    dataType: 'json',
-    contentType:"application/json; charset=utf-8",
-    processData: false,
-    success: function(data) {
+function dragLeave (e) {
 
-    },
-    timeout: 10000,
-    error: function(jqXHR, textStatus, errorThrown) {
-      console.log(errorThrown);
-    },
-    complete: function(jqXHR, textStatus) {
+}
 
-    }
-  });
+// drag image file
+function drag (e) {
+  e.dataTransfer.setData('text/plain', e.target.textContent);
+  e.dataTransfer.effectAllowed = 'copy';
+  console.log(e.target.id)
+}
+
+// drop image on drive
+async function dropHere (e) {
+  e.preventDefault();
+  e.stopPropagation();
+  let imageFilename = e.dataTransfer.getData('text/plain');
+  e.target.value = imageFilename;
+  e.target.value = e.dataTransfer.getData('text/plain');
+  let row;
+  let ce = e.target;
+  while (ce.parentNode) {
+    if (ce.classList.contains('box-row')) break;
+    ce = ce.parentNode;
+  }
+  let driveNumber = parseInt(ce.id.split('_')[1]);
+  let response = await API.postJSON('/api/loadimage', { imageFilename, driveNumber });
+  responseToLog(response);
+  showStatus(response);
+  return false;
 }
 
 
-function ejectImage(driveNumber) {
-  var data = {
-    driveNumber: driveNumber
-  };
+function responseToLog (res) {
+  res.errors && res.errors.forEach(error => appendError(error));
+  res.messages && res.messages.forEach(msg => appendMessage(msg));
+}
 
-  $.ajax({
-    type: "POST",
-    url: '/api/ejectdriveimage',
-    data: JSON.stringify(data),
-    dataType: 'json',
-    contentType:"application/json; charset=utf-8",
-    processData: false,
-    success: function(data) {
-      getStatus();
-    },
-    timeout: 10000,
-    error: function(jqXHR, textStatus, errorThrown) {
-      console.log(errorThrown);
-    },
-    complete: function(jqXHR, textStatus) {
+function appendMessage (msg) {
+  appendLog(`<div class="log-line log-message">${msg}</div>`);
+}
 
-    }
-  });
+function appendError (msg) {
+  appendLog(`<div class="log-line log-error">${msg}</div>`);
+}
+
+function appendLog (line) {
+  let log = document.querySelector('#log');
+  let msgs = log.querySelectorAll('.log-line');
+  log.insertAdjacentHTML('beforeend', line);
+  if (msgs.length > 3) log.removeChild(msgs[0]);
 }

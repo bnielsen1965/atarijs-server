@@ -1,75 +1,96 @@
 # atarijs-server
 
-Nodejs based server to manage a set of emulated Atari floppy drives using the
-atarijs-sio and atarijs-disk-image modules.
+A NodeJS based server used to emulate Atari floppy drives on the SIO interface and
+provide a web based user interface for loading of floppy disk images into emulated
+drives.
 
-Provides a web based user interface with drag and drop image loading.
-
-> **WARNING** This software is provided as is and does not include an warranty or
-> guarantee. **Use at your own risk!** Keep backups of all floppy images that you
-> may use with this software.
-
-
-## hardware
-
-Theoretically this server will run on any hardware that has a serial port. To date
-it has only been tested on Raspberry Pi 3 hardware.
-
-An Atari 8 bit computer will be required and an SIO cable or jumper wires to connect
-the SIO connector on the computer to a breakout board.
-
-**NOTE:** The Atari SIO connector utilizes +5 volts for signals while the Raspberry
-Pi 3 uses +3.3 volts. A few resistors will be required to create a voltage divider
-circuit to reduce the Atari voltage on the Digital Output. The Atari Digital Input
-will recognize the +3.3 volts on the Raspberry Pi 3 but a current limiting resistor
-is recommended.
+**WARNING:** Always make backup copies of your floppy disk images. When clicking
+on the save button on a drive control the disk image in memory will overwrite the
+image file on your hard drive.
 
 
-## software
+# Requirements
 
-Building and installing the software will require [nodejs](https://nodejs.org/) and npm.
-If the server is provided in a package pre-built then only the node executable is
-required.
-
-
-Theoretically the software should run on any operating system that is supported by
-nodejs. However, some platforms may need to compile the nodejs serial-port module.
-Development and testing was conducted on Raspian Jessie Lite operating system.
+What will you need?
+- Host platform to run the server and connect to an Atari (developed and tested on linux).
+- [NodeJS](https://nodejs.org) engine installed on the host platform.
+- RS232 to Atari SIO adapter. See the [hardware](#hardware) below for a possible solution.
+- ATR floppy images. A set of floppy disk images will be needed for the emulation.
 
 
-## building the server
+# Install
 
-Download a copy of the atarijs-server repository or use git to clone the repository.
-Inside the atarijs-server directory run `npm install` to download all the dependencies
-and compile the serial-port module if necessary.
+Copy the project from github, then use *npm install* in the project directory to
+load all the dependencies.
 
+```shell
+git clone https://github.com/bnielsen1965/atarijs-server.git
+cd atarijs-server
+npm install
+```
 
-## running the server
+Next edit the config.js file and set the *SerialDevice* value to your RS232 device
+that is connected to the Atari SIO interface.
 
-**NOTE: A configuration file does not yet exist, the port setting in in index.js***
+Copy your floppy disk image files into the */atarijs-server/public/images* directory
+where they will be hosted by the server.
 
-Edit the server settings and define the serial port device that will be used in the
-operating system to connect to the Atari computer SIO port.
+And finally use node to start the atarijs-server server.
+> node index.js
 
-
-In the atarijs-server directory execute `node index.js` to start the server. The
-server will open the serial port connection to the Atari and a TCP port for the
-web based user interface.
-
-
-## using the server
-
-Copy ATR image files into the atarijs-server/public/images/ directory.
-
-
-Use a web browser and enter the address and port number of the server in the web browser
-location bar.
+You can now open up the web interface in a web browser by entering the address and
+port to the host server. I.E. if the atarijs server is running on the same system
+as the web browser then enter [http://localhost:8080/](http://localhost:8080/) in
+the web browser, or if you atarijs server is on a remote host then use the ip address
+of the host, I.E. [http://192.168.0.18:8080](http://192.168.0.18:8080).
 
 
-Drag and drop files and floppy image files in the web page to move them between the file list, emulated drives
-and parked image slots.
+# User Interface
+
+The user interface is a simple web page with a list of emulated floppy drives
+on the left and a list of floppy disk image files on the right.
+
+Drag a floppy disk image from the list on the right to input field on an
+emulated drive on the left and the server will load that image into the
+emulated drive.
+
+![screenshot](public/img/atarijs-ss.png?raw=true "screenshot")
+
+If additional image files are added to the */atarijs-server/public/images*
+folder then the list of floppy disk images can be refreshed by clicking the
+refresh icon in the upper right corner.
+
+If changes are made to the disk in an emulated drive those changes can be
+saved back to the image file by clicking on the *save disk* icon in the
+emulated drive controls.
+
+The image in an emulated drive can be ejected by clicking on the *eject* icon
+on the drives controls.
+
+**WARNING:** If changes are made to a floppy and it is ejected before saving
+then the changes will be lost.
 
 
-**NOTE: Floppy images in the drives are in the server memory and writes to the
-floppies does not change the file on the server's drive.** Use the *Save* icon on
-a drive to save the current floppy image back to the server file.
+# Hardware
+
+The atarijs-server should theoretically work with any RS232 to Atari SIO
+adapter. The following is the hardware solution that was used during
+development of atarijs-server.
+
+**WARNING:** Use this hardware design at your own risk. The RS232 standard
+specifies voltages that may range +/- 15VDC and depending on the RS232
+hardware used you could damage your Atari computer or peripherals.
+
+This circuit is used with the CableCreation USB to RS232 Adapter (FTDI
+Chipset). A 74HC14 hex inverting Schmitt trigger is used to convert between
+the 0 to 5 VDC signals on the Atari SIO and the RS232 voltages from the
+RS232 adapter.
+
+![schematic](public/img/schematic.png?raw=true "schematic")
+
+The +5 VDC Ready signal from the Atari SIO is used to power the 74HC14 chip
+and three of the hex inverter Schmitt trigger gates are used to connect the
+Atar SIO Data Out to RS232 RxD, SIO Data In to RS232 TxD, and SIO Command
+to RS232 CTS.
+
+![pcb](public/img/pcb.png?raw=true "pcb")

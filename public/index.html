@@ -3,127 +3,33 @@
 <head>
 	<meta charset="utf-8">
 	<title>AtariJS Server</title>
-	<!--[if IE]>
-		<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-	<![endif]-->
-
-	<script src="/node_modules/jquery/dist/jquery.min.js"></script>
-	<script src="/node_modules/jquery-ui-dist/jquery-ui.min.js"></script>
-  <script src="/node_modules/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js"></script>
-
-	<link rel="stylesheet" href="/node_modules/jquery-ui-dist/jquery-ui.theme.min.css">
-  <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css">
-  <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap-theme.min.css">
   <link rel="stylesheet" href="/css/index.css">
-	<!--<link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />-->
-
   <script src="/js/index.js"></script>
-
+  <script src="/js/api.js"></script>
 </head>
 <body>
-	<div class="page-header">
-		<h1>AtariJS Server</h1>
-	</div>
+	<h1>AtariJS Server</h1>
 
-  <div class="container" id="drivescontainer">
-    <div class="row" id="driveimagerow">
-      <div class="col-sm-6">
-        <div class="list-group">
-					<div class="list-group-item list-group-item-info">
-						Floppy Drives
-						<span class="glyphicon glyphicon-refresh pull-right refreshserver"></span>
-					</div>
-          <div class="list-group-item driveitem" data-drivenumber="1" id="drive1">
-						<div class="form-group col-sm-12 row">
-							<label class="col-sm-2 col-form-label">D1:</label>
-							<div class="col-sm-10">
-								<input type="text" class="form-control imagefile" placeholder="Image filename">
-							</div>
-						</div>
-						<div class="col-sm-6 infodiv">Sector Size: <span class="sectorsize"></span></div>
-						<div class="col-sm-6 infodiv">Sector Count: <span class="sectorcount"></span></div>
-						<div class="col-sm-12 infodiv">
-							Status: <span class="readonly"></span>
-							<span class="glyphicon glyphicon-eject pull-right ejectimage"></span>
-							<span class="glyphicon glyphicon-floppy-save pull-right saveimage"></span>
-						</div>
-          </div>
-					<div class="list-group-item driveitem" data-drivenumber="2" id="drive2">
-						<div class="form-group col-sm-12 row">
-							<label class="col-sm-2 col-form-label">D2:</label>
-							<div class="col-sm-10">
-								<input type="text" class="form-control imagefile" placeholder="Image filename">
-							</div>
-						</div>
-						<div class="col-sm-6 infodiv">Sector Size: <span class="sectorsize"></span></div>
-						<div class="col-sm-6 infodiv">Sector Count: <span class="sectorcount"></span></div>
-						<div class="col-sm-12 infodiv">
-							Status: <span class="readonly"></span>
-							<span class="glyphicon glyphicon-eject pull-right ejectimage"></span>
-							<span class="glyphicon glyphicon-floppy-save pull-right saveimage"></span>
-						</div>
-          </div>
-					<div class="list-group-item driveitem" data-drivenumber="3" id="drive3">
-						<div class="form-group col-sm-12 row">
-							<label class="col-sm-2 col-form-label">D3:</label>
-							<div class="col-sm-10">
-								<input type="text" class="form-control imagefile" placeholder="Image filename">
-							</div>
-						</div>
-						<div class="col-sm-6 infodiv">Sector Size: <span class="sectorsize"></span></div>
-						<div class="col-sm-6 infodiv">Sector Count: <span class="sectorcount"></span></div>
-						<div class="col-sm-12 infodiv">
-							Status: <span class="readonly"></span>
-							<span class="glyphicon glyphicon-eject pull-right ejectimage"></span>
-							<span class="glyphicon glyphicon-floppy-save pull-right saveimage"></span>
-						</div>
-          </div>
-					<div class="list-group-item driveitem" data-drivenumber="4" id="drive4">
-						<div class="form-group col-sm-12 row">
-							<label class="col-sm-2 col-form-label">D4:</label>
-							<div class="col-sm-10">
-								<input type="text" class="form-control imagefile" placeholder="Image filename">
-							</div>
-						</div>
-						<div class="col-sm-6 infodiv">Sector Size: <span class="sectorsize"></span></div>
-						<div class="col-sm-6 infodiv">Sector Count: <span class="sectorcount"></span></div>
-						<div class="col-sm-12 infodiv">
-							Status: <span class="readonly"></span>
-							<span class="glyphicon glyphicon-eject pull-right ejectimage"></span>
-							<span class="glyphicon glyphicon-floppy-save pull-right saveimage"></span>
-						</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-sm-6" id="imagefiles">
+  <div class="container">
+    <div class="container-cell-half">
+      <div class="box">
+        <div class="box-header">Floppy Drives<span id="append-drive" class="title-icon"><span class="material_icons" title="Create Drive">create_new_folder</span></span></div>
+        <div class="box-body" id="drive-controls"></div>
       </div>
     </div>
 
-		<div class="row" id="parkedimagerow">
-      <div class="col-sm-6">
-        <div class="list-group">
-					<div class="list-group-item list-group-item-info">
-						Parked Images
-					</div>
-          <div class="list-group-item parkeditem" data-parkednumber="1" id="parked1">
-            <div class="col-sm-12">P1: <span class="imagefile"></span></div>
-					</div>
-					<div class="list-group-item parkeditem" data-parkednumber="2" id="parked2">
-            <div class="col-sm-12">P2: <span class="imagefile"></span></div>
-					</div>
-					<div class="list-group-item parkeditem" data-parkednumber="3" id="parked3">
-            <div class="col-sm-12">P3: <span class="imagefile"></span></div>
-					</div>
-					<div class="list-group-item parkeditem" data-parkednumber="4" id="parked4">
-            <div class="col-sm-12">P4: <span class="imagefile"></span></div>
-					</div>
+    <div class="container-cell-half">
+      <div class="box" id="box-images">
+        <div class="box-header">Disk Images<span id="refresh-images" class="title-icon"><span class="material_icons" title="Refresh image list">autorenew</span></span></div>
+        <div class="box-body" id="drive-images">
+          images
+          <div class="drag" draggable="true">test file</div>
         </div>
       </div>
-
-      <div class="col-sm-6" id=""></div>
     </div>
   </div>
+
+  <div class="container" id="log"></div>
 
 </body>
 </html>
