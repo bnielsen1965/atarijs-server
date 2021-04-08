@@ -91,6 +91,12 @@ RS232 adapter.
 The +5 VDC Ready signal from the Atari SIO is used to power the 74HC14 chip
 and three of the hex inverter Schmitt trigger gates are used to connect the
 Atar SIO Data Out to RS232 RxD, SIO Data In to RS232 TxD, and SIO Command
-to RS232 CTS.
+to RS232 CTS. The result is a compact PCB...
 
 ![pcb](public/img/pcb.png?raw=true "pcb")
+
+An FTDI based USB to RS-232 cable was used with this 74HC14 based SIO to RS-232
+adapter for testing. The signal voltages out of the FTDI based cable were on the
+low end of the RS-232 specification so there may not be any risk of over voltage
+damage.
+![pcb](public/img/cables.png?raw=true "cables")
